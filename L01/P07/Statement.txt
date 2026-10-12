@@ -1,0 +1,80 @@
+L01-P07: Debug - Closures and `this`
+Difficulty: Easy
+
+SCENARIO
+You've inherited code with four classic JavaScript bugs. Each snippet runs
+without crashing but prints the wrong thing.
+
+PROBLEM STATEMENT
+Copy each snippet into Solution.js, predict its output BEFORE running it,
+run it, then fix it. For each bug, add a comment explaining why it happened
+and why your fix works.
+
+BUG 1: loop and closure
+  for (var i = 0; i < 3; i++) {
+    setTimeout(() => console.log("task", i), 10);
+  }
+  // Expected: task 0, task 1, task 2
+
+BUG 2: lost `this`
+  const timer = {
+    label: "build",
+    start() { console.log("starting", this.label); }
+  };
+  const run = timer.start;
+  run();
+  setTimeout(timer.start, 10);
+  // Expected: starting build (both times)
+
+BUG 3: arrow function as method
+  const counter = {
+    count: 0,
+    increment: () => { this.count++; return this.count; }
+  };
+  console.log(counter.increment()); // Expected: 1
+  console.log(counter.increment()); // Expected: 2
+
+BUG 4: shared state in closure factory
+  function makeCounters() {
+    const counters = [];
+    let count = 0;
+    for (let i = 0; i < 3; i++) {
+      counters.push(() => ++count);
+    }
+    return counters;
+  }
+  const [a, b, c] = makeCounters();
+  console.log(a(), a(), b(), c());
+  // Expected: each counter is independent -> 1 2 1 1
+
+FUNCTIONAL REQUIREMENTS
+- All four snippets produce the expected output.
+- Bugs 1 and 2: show at least two different valid fixes each (one is enough to
+  be live code, the other can be a comment).
+- Do not change expected output to match the bug.
+
+CONSTRAINTS
+- Fix the code, not the expectations.
+- Do not use global variables as a workaround.
+
+INPUT AND OUTPUT
+No input. Output is the console output shown in "Expected" for each bug.
+
+EDGE CASES
+- Bug 2: does your fix also work when timer.start is passed to setTimeout?
+- Bug 3: what does `this` point to at module level in an ES module vs CommonJS?
+  Note what you observe.
+- Bug 4: calling a() after b() must not affect a.
+
+SKILLS TESTED
+var vs let scoping, closures, `this` binding rules, bind/arrow functions,
+method vs arrow function behavior.
+
+ACCEPTANCE CRITERIA
+- All four outputs match the expected output.
+- Every bug has a comment explaining the root cause in your own words.
+- Bugs 1 and 2 show two distinct fixes.
+
+OPTIONAL BONUS
+Write a function that returns what `this` is for each of: a plain function call,
+a method call, a call with bind, and an arrow function, and print all four.

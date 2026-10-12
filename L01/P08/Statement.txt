@@ -1,0 +1,59 @@
+L01-P08: Retry Wrapper
+Difficulty: Intermediate
+
+SCENARIO
+Calls to an external service fail randomly. You want a reusable helper that
+retries an async operation a few times before giving up.
+
+PROBLEM STATEMENT
+Write and export retry(fn, options) which calls an async function until it
+succeeds or the retry limit is reached.
+
+FUNCTIONAL REQUIREMENTS
+- options: { retries = 3, delayMs = 100, shouldRetry = () => true, onRetry }
+- fn is called at most 1 + retries times in total.
+- On success, resolve with fn's result immediately.
+- Between attempts, wait delayMs (a fixed delay, no backoff in this problem).
+- shouldRetry(error) returning false stops retrying immediately and rejects
+  with that error.
+- onRetry(error, attemptNumber), if provided, is called before each retry.
+- When all attempts fail, reject with a RetryError that has `attempts` (number)
+  and `cause` (the last error).
+- fn may throw synchronously or return a rejected promise: both count as failures.
+
+CONSTRAINTS
+- No third-party packages.
+- Validate: fn must be a function (TypeError), retries must be an integer >= 0
+  and delayMs a number >= 0 (RangeError).
+- No delay after the final failed attempt.
+
+INPUT AND OUTPUT
+let n = 0;
+const flaky = async () => { if (++n < 3) throw new Error("fail " + n); return "ok"; };
+await retry(flaky, { retries: 3, delayMs: 10 });  // "ok" (called 3 times)
+
+await retry(() => { throw new Error("always"); }, { retries: 2 });
+// rejects with RetryError, attempts: 3, cause.message: "always"
+
+EDGE CASES
+- retries: 0 (exactly one attempt).
+- fn succeeds on the first call (no delay, no onRetry call).
+- shouldRetry false on the first error (attempts: 1).
+- fn returns a non-promise value.
+- fn throws synchronously.
+- onRetry itself throws: decide what happens, document it.
+- Making sure a rejected promise from an earlier attempt can't cause an
+  unhandled rejection.
+
+SKILLS TESTED
+async/await loops, promise-based delays, custom errors, option defaults,
+sync vs async failures.
+
+ACCEPTANCE CRITERIA
+- Examples work.
+- Attempt count is exactly right in every case (verify with a counter).
+- No wait after the last failure (test with timing).
+- At least 8 test cases.
+
+OPTIONAL BONUS
+Add a timeoutMs option so each attempt fails if it takes too long.

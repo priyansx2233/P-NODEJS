@@ -1,0 +1,54 @@
+L01-P05: Callback-to-Promise Converter
+Difficulty: Easy
+
+SCENARIO
+You're integrating an old library that only supports Node-style callbacks.
+Your codebase uses async/await.
+
+PROBLEM STATEMENT
+Implement your own promisify(fn) WITHOUT using util.promisify. It takes a
+function whose last argument is a Node-style callback (err, result) and
+returns a function that returns a Promise.
+
+FUNCTIONAL REQUIREMENTS
+- promisify(fn)(...args) calls fn(...args, callback).
+- If callback receives a truthy err, the promise rejects with err.
+- Otherwise the promise resolves with result.
+- `this` is preserved when the promisified function is called as a method.
+- If fn throws synchronously, the promise rejects with that error.
+- If the callback is called more than once, only the first call counts.
+- Throw TypeError immediately if fn is not a function.
+
+CONSTRAINTS
+- No third-party packages and no util.promisify.
+- The returned function must work with await and with .then/.catch.
+
+INPUT AND OUTPUT
+const fetchUser = (id, cb) => setTimeout(() =>
+  id > 0 ? cb(null, { id, name: "User" + id }) : cb(new Error("Invalid id")), 50);
+
+const fetchUserAsync = promisify(fetchUser);
+await fetchUserAsync(1);   // { id: 1, name: "User1" }
+await fetchUserAsync(-1);  // rejects: Error("Invalid id")
+
+EDGE CASES
+- fn that calls the callback synchronously.
+- fn that throws before calling the callback.
+- Callback called twice, or with both err and result.
+- Callback called with multiple result values (cb(null, a, b)): decide
+  (resolve first value only, or an array), document it.
+- Method call: obj.method = promisify(obj.legacyMethod) using this.
+- No arguments besides the callback.
+
+SKILLS TESTED
+Promises, closures, rest/spread args, `this` binding, error handling.
+
+ACCEPTANCE CRITERIA
+- Examples work.
+- All edge cases handled and documented.
+- Tests prove the `this` binding and the double-callback behavior.
+- At least 6 test cases.
+
+OPTIONAL BONUS
+Add support for a custom symbol (like util.promisify.custom) so a function can
+provide its own promise-returning version.

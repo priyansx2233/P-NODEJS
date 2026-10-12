@@ -1,0 +1,66 @@
+L01-P02: Config Destructuring
+Difficulty: Beginner
+
+SCENARIO
+Your service reads a partial config object from the user and must fill in
+defaults. Real configs are nested and often incomplete.
+
+PROBLEM STATEMENT
+Write and export buildConfig(userConfig) that returns a complete, new config
+object by combining the user's values with defaults. Use destructuring with
+default values and rest/spread syntax.
+
+DEFAULTS
+{
+  server:  { host: "localhost", port: 3000 },
+  db:      { url: "mongodb://localhost:27017", poolSize: 5 },
+  logging: { level: "info", pretty: false }
+}
+
+FUNCTIONAL REQUIREMENTS
+- Any value the user provides overrides its default, at any nesting level.
+- Any value the user omits (undefined) falls back to its default.
+- Unknown extra top-level keys the user passes (e.g. featureFlags) are kept
+  in the result.
+- Unknown extra keys inside server/db/logging are kept too.
+- The input object must NOT be mutated, and the result must be a new object.
+- Calling buildConfig() with no argument returns the full defaults.
+
+CONSTRAINTS
+- Use destructuring (with defaults) and spread/rest. No lodash or other packages.
+- Throw a TypeError if userConfig is not undefined and not a plain object
+  (null, arrays, numbers, strings are invalid).
+- Do not write one long if/else chain per field.
+
+INPUT AND OUTPUT
+buildConfig({ server: { port: 8080 } })
+// server: { host: "localhost", port: 8080 }, db and logging are defaults
+
+buildConfig({ logging: { pretty: true }, featureFlags: { beta: true } })
+// logging: { level: "info", pretty: true }, featureFlags kept as-is
+
+buildConfig()
+// full defaults
+
+EDGE CASES
+- port: 0 and pretty: false are valid user values and must NOT be replaced by
+  defaults (defaults apply only to undefined).
+- A section passed as undefined (server: undefined) falls back to defaults.
+- A section passed as null: decide the behavior, document it, apply it consistently.
+- Mutating the returned object must not change the defaults or the input.
+- Extra keys are preserved at both levels.
+
+SKILLS TESTED
+Nested destructuring, default values, rest/spread, immutability, input validation,
+undefined vs null vs falsy values.
+
+ACCEPTANCE CRITERIA
+- All examples produce the shown results.
+- port: 0 and pretty: false survive.
+- Input and the defaults object are never mutated (prove it in a test).
+- Wrong input types throw TypeError.
+- Include at least 6 test cases.
+
+OPTIONAL BONUS
+Make it generic: mergeDefaults(defaults, overrides) that deep-merges any nested
+shape without hard-coding keys.

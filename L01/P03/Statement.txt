@@ -1,0 +1,57 @@
+L01-P03: Order Totals Pipeline
+Difficulty: Beginner
+
+SCENARIO
+An online shop exports orders as JSON. Finance wants a summary: total revenue,
+orders per status, and the top customers by spend.
+
+PROBLEM STATEMENT
+Write and export summarizeOrders(orders) using map, filter, and reduce.
+No for/while loops and no forEach.
+
+DATA SHAPE
+{ id: "o1", customer: "alice", status: "paid",
+  items: [{ sku: "A1", price: 19.99, qty: 2 }, { sku: "B2", price: 5, qty: 1 }] }
+
+FUNCTIONAL REQUIREMENTS
+Return an object:
+{
+  totalRevenue: number,                  // paid + shipped orders only
+  ordersByStatus: { paid: n, ... },      // count of orders per status (all statuses)
+  topCustomers: [{ customer, spend }]    // top 3 by spend, paid + shipped only
+}
+- Order total = sum of price * qty over its items.
+- Orders with status "cancelled" or "refunded" never count toward revenue/spend.
+- topCustomers is sorted by spend descending, ties broken by name ascending.
+- Money is rounded to 2 decimals in the output.
+
+CONSTRAINTS
+- No mutation of the input array or its objects.
+- Must handle 100,000 orders quickly (no nested searches over the list).
+- Throw TypeError if orders is not an array.
+
+INPUT AND OUTPUT
+Input: 3 orders: alice paid 39.98+5, bob shipped 10, alice cancelled 100
+Output: totalRevenue 54.98, ordersByStatus { paid: 1, shipped: 1, cancelled: 1 },
+topCustomers: [{ customer: "alice", spend: 44.98 }, { customer: "bob", spend: 10 }]
+
+EDGE CASES
+- Empty array.
+- Order with an empty items array (total 0).
+- Floating point errors: 0.1 * 3, 19.99 * 3. Your totals must be exact to 2 decimals.
+- Fewer than 3 customers.
+- Unknown status strings are counted in ordersByStatus but not in revenue.
+- Missing qty or price: decide the behavior (skip or throw), document it.
+
+SKILLS TESTED
+map/filter/reduce composition, grouping with reduce, floating point handling,
+sorting, immutability.
+
+ACCEPTANCE CRITERIA
+- Output matches the example exactly.
+- No loops or forEach in your solution.
+- No float drift in totals (test with 0.1 + 0.2 style data).
+- At least 6 tests including empty input.
+
+OPTIONAL BONUS
+Add revenue per month using each order's createdAt date.

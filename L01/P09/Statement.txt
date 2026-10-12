@@ -1,0 +1,63 @@
+L01-P09: Group and Index Records
+Difficulty: Intermediate
+
+SCENARIO
+You're writing a small data toolkit that groups and looks up records by key.
+Keys may be numbers, strings, or objects, so plain objects aren't enough.
+
+PROBLEM STATEMENT
+Implement and export these functions using Map and Set (no lodash):
+
+  groupBy(items, keyFn)    -> Map<key, item[]>
+  indexBy(items, keyFn)    -> Map<key, item>
+  countBy(items, keyFn)    -> Map<key, number>
+  uniqueBy(items, keyFn)   -> item[]  (first occurrence wins, order preserved)
+  partition(items, predicate) -> [matching[], nonMatching[]]
+
+FUNCTIONAL REQUIREMENTS
+- keyFn receives (item, index).
+- groupBy and countBy preserve first-seen key order.
+- indexBy: if two items share a key, the LAST one wins by default. Accept a third
+  argument { onDuplicate: "last" | "first" | "throw" } to change that.
+- uniqueBy keeps the first item for each key and preserves input order.
+- partition preserves original order in both lists.
+- None of these mutate the input array.
+
+CONSTRAINTS
+- Each function must run in O(n).
+- Use Map for keys; the number 1 and the string "1" are different keys.
+- Throw TypeError if items is not an array or keyFn/predicate is not a function.
+- Throw Error with a clear message on duplicate when onDuplicate is "throw".
+
+INPUT AND OUTPUT
+const users = [
+  { id: 1, role: "admin" }, { id: 2, role: "user" },
+  { id: 3, role: "user" }
+];
+groupBy(users, u => u.role)
+// Map { "admin" => [{id:1,...}], "user" => [{id:2,...},{id:3,...}] }
+countBy(users, u => u.role)      // Map { "admin" => 1, "user" => 2 }
+uniqueBy(users, u => u.role)     // [{id:1,...}, {id:2,...}]
+
+EDGE CASES
+- Empty array.
+- Keys like "constructor", "__proto__", "toString" (must work correctly).
+- NaN as a key (Map treats NaN as equal to itself: verify).
+- Object keys: the same object reference groups together, equal-looking objects don't.
+- null/undefined keys.
+- keyFn that throws: the error should propagate.
+- Large input (500,000 items) in under a second.
+
+SKILLS TESTED
+Map and Set semantics, key equality, O(n) algorithms, input validation,
+avoiding prototype pitfalls.
+
+ACCEPTANCE CRITERIA
+- Examples produce the shown results.
+- Number vs string keys remain distinct (test it).
+- All three onDuplicate modes work.
+- Performance target met.
+- At least 10 tests across the five functions.
+
+OPTIONAL BONUS
+Add groupByMultiple(items, [keyFn1, keyFn2]) returning nested Maps.

@@ -1,0 +1,56 @@
+L01-P06: Safe JSON Parser
+Difficulty: Easy
+
+SCENARIO
+Your API receives JSON from clients and config files. JSON.parse throws
+unhelpful errors and crashes the process when unhandled.
+
+PROBLEM STATEMENT
+Create a custom error class ParseError and two functions: safeParse and
+parseOrThrow.
+
+FUNCTIONAL REQUIREMENTS
+- class ParseError extends Error
+    - name is "ParseError"
+    - has fields: input (truncated to the first 50 characters), cause (the
+      original error)
+    - works with `instanceof ParseError` and `instanceof Error`
+    - has a readable message like: Invalid JSON: Unexpected token } ...
+- parseOrThrow(text) returns the parsed value or throws ParseError.
+- safeParse(text, fallback = null) returns the parsed value, or fallback on
+  failure. It never throws.
+- Non-string input (undefined, null, numbers, objects) is a failure. Handle it
+  without a raw TypeError leaking out of safeParse.
+
+CONSTRAINTS
+- No third-party packages.
+- Never include the full input in the error if it exceeds 50 characters.
+- Do not swallow errors silently in parseOrThrow.
+
+INPUT AND OUTPUT
+safeParse('{"a":1}')           // { a: 1 }
+safeParse('{bad json}', {})    // {}
+parseOrThrow('{"a":')          // throws ParseError
+safeParse(undefined, "n/a")    // "n/a"
+
+EDGE CASES
+- Empty string, whitespace only, the string "undefined", the string "null"
+  (valid JSON for null: does the caller get null or the fallback? decide and document).
+- Trailing commas, single quotes, comments.
+- A leading BOM (\uFEFF).
+- Very long invalid input (check truncation).
+- JSON containing a "__proto__" key: confirm what happens to the parsed object.
+- Valid but falsy results: 0, false, "" must be returned as-is, not replaced by fallback.
+
+SKILLS TESTED
+try/catch, custom error classes, Error.cause, defensive input handling,
+instanceof, truthy/falsy pitfalls.
+
+ACCEPTANCE CRITERIA
+- Examples behave as shown.
+- 0, false, and "" parse results are never replaced by the fallback.
+- ParseError passes the instanceof checks and has the fields specified.
+- At least 8 test cases.
+
+OPTIONAL BONUS
+Extract line and column of the failure from the error message when available.

@@ -1,0 +1,71 @@
+L01-P10: Mini Inventory Library
+Difficulty: Intermediate
+
+SCENARIO
+A small shop needs an in-memory inventory library. It must enforce rules and
+fail loudly on bad data. It will later be wrapped by an API.
+
+PROBLEM STATEMENT
+Build an ES-module library with classes Product and Inventory, plus custom
+errors. Use classes, private fields (#), and getters.
+
+FUNCTIONAL REQUIREMENTS
+Errors (all extend Error with a proper name):
+  ValidationError, DuplicateSkuError, NotFoundError, InsufficientStockError
+  (InsufficientStockError has fields: sku, requested, available)
+
+class Product:
+  - constructor({ sku, name, priceCents, quantity = 0 })
+  - validation: sku and name are non-empty strings, priceCents is a non-negative
+    integer, quantity is a non-negative integer
+  - fields are read through getters; internal state uses private fields
+
+class Inventory:
+  - addProduct(productData)           -> throws DuplicateSkuError if sku exists
+  - addStock(sku, qty)                -> qty must be a positive integer
+  - removeStock(sku, qty)             -> throws InsufficientStockError if too few
+  - getProduct(sku)                   -> throws NotFoundError if unknown
+  - getLowStock(threshold)            -> products with quantity <= threshold,
+                                         sorted by quantity then sku
+  - totalValueCents()                 -> sum of priceCents * quantity
+  - toJSON() and static fromJSON(json) -> round-trip the whole inventory
+
+CONSTRAINTS
+- Money is stored in integer cents, never floats.
+- Callers must not be able to change internal state by mutating returned data
+  (return copies or frozen snapshots).
+- A failed operation must leave the inventory unchanged.
+- No third-party packages.
+
+INPUT AND OUTPUT
+const inv = new Inventory();
+inv.addProduct({ sku: "A1", name: "Cable", priceCents: 1299, quantity: 10 });
+inv.removeStock("A1", 4);
+inv.getProduct("A1").quantity;   // 6
+inv.totalValueCents();           // 7794
+inv.removeStock("A1", 50);       // throws InsufficientStockError {requested:50, available:6}
+
+EDGE CASES
+- Negative, zero, fractional, NaN, or string quantities.
+- Price as a float (12.99) must be rejected.
+- Duplicate sku differing only by case: decide the rule, document it.
+- removeStock to exactly zero (allowed) and by more than available (rejected).
+- fromJSON with corrupted data must throw ValidationError and not produce a
+  half-built inventory.
+- Modifying the array returned by getLowStock must not affect the inventory.
+- Accessing private fields from outside must be impossible.
+
+SKILLS TESTED
+Classes, private fields, getters, custom error hierarchies, encapsulation,
+validation, serialization, all-or-nothing operations.
+
+ACCEPTANCE CRITERIA
+- Example behaves as shown.
+- Every error type is thrown in the right situation (test each).
+- Round trip: fromJSON(JSON.stringify(inv)) behaves identically to the original.
+- State is unchanged after every failed operation (assert this in tests).
+- At least 12 tests.
+
+OPTIONAL BONUS
+Add an event log (history of every add/remove with timestamp) and a
+getHistory(sku) method.

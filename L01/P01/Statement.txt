@@ -1,0 +1,55 @@
+L01-P01: Word Frequency Counter
+Difficulty: Beginner
+
+SCENARIO
+You're building a small text-analysis helper for a blogging tool. Editors want
+to see which words appear most often in a draft.
+
+PROBLEM STATEMENT
+Write and export a function countWords(text) that analyzes a string and
+returns the word frequencies, most frequent first.
+
+FUNCTIONAL REQUIREMENTS
+- Matching is case-insensitive: "Node" and "node" are the same word.
+- Punctuation is not part of a word. Apostrophes inside a word are kept
+  (don't stays don't).
+- Return an array of [word, count] pairs.
+- Sort by count descending, then alphabetically ascending for ties.
+- Accept an optional second argument `limit` that returns only the top N entries.
+- Use ES modules (export function countWords). No third-party packages.
+
+CONSTRAINTS
+- Input can be up to 1,000,000 characters, so avoid quadratic algorithms.
+- Throw a TypeError with a clear message if text is not a string.
+- limit, if provided, must be a positive integer, otherwise throw a RangeError.
+
+INPUT AND OUTPUT
+countWords("The cat and the hat. The END, and the cat!")
+// [["the", 4], ["and", 2], ["cat", 2], ["end", 1], ["hat", 1]]
+countWords("Don't stop, don't quit", 1)
+// [["don't", 2]]
+countWords("")
+// []
+
+EDGE CASES
+- Empty string, or only punctuation and whitespace.
+- Multiple spaces, tabs, and newlines between words.
+- Hyphens and numbers: pick a rule, document it in a comment, apply it consistently.
+- Leading or trailing apostrophes ('hello') must not create 'hello' as a word.
+- Words like constructor or toString must be counted correctly.
+- Non-string inputs: null, undefined, 42.
+
+SKILLS TESTED
+String manipulation, regex or manual tokenizing, object vs Map for counting,
+custom sort comparator, input validation, ES module exports.
+
+ACCEPTANCE CRITERIA
+- All examples above produce exactly the shown output.
+- Every edge case behaves as specified or as documented in your comments.
+- No crash or wrong count on constructor, __proto__, or toString.
+- Runs in well under a second on a 1M-character input.
+- Include a test script (node:test or console.assert) with at least 6 cases.
+
+OPTIONAL BONUS
+Add a stopWords option (array of words to ignore) and handle accented
+characters (cafe, naive with accents) correctly.

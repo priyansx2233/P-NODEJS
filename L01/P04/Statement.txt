@@ -1,0 +1,54 @@
+L01-P04: Utility Library Split
+Difficulty: Beginner
+
+SCENARIO
+Your helper functions live in one big file. You need to split them into modules
+the way a real project would.
+
+PROBLEM STATEMENT
+Create a small ES-module project inside L01/P04 with these files:
+  package.json     ("type": "module")
+  strings.js       named exports: capitalize, slugify, truncate
+  numbers.js       named exports: clamp, sum, average
+  logger.js        default export: a logger object with info(msg), error(msg)
+  index.js         re-exports everything from strings.js and numbers.js
+  main.js          imports from index.js and logger.js and demonstrates all functions
+
+FUNCTIONAL REQUIREMENTS
+- capitalize("hello world") -> "Hello world"
+- slugify("  Hello, World! 2024 ") -> "hello-world-2024"
+- truncate("Node.js rocks", 7) -> "Node.j…" (result length never exceeds 7)
+- clamp(15, 0, 10) -> 10
+- sum([1, 2, 3]) -> 6
+- average([2, 4]) -> 3
+- logger.info prefixes "[INFO]" and logger.error prefixes "[ERROR]" with an ISO timestamp.
+
+CONSTRAINTS
+- Use only import/export syntax. No require.
+- Each function validates its input types and throws TypeError with a clear message.
+- index.js must not redefine anything; it only re-exports.
+
+INPUT AND OUTPUT
+Running `node main.js` prints one line per function showing input and result,
+plus an INFO and an ERROR log line.
+
+EDGE CASES
+- slugify with accents, multiple spaces, leading/trailing symbols, empty string.
+- truncate where the text is already shorter than the limit, and limit of 0 or 1.
+- average([]) and sum([]): decide the behavior (throw or 0 / NaN), document it.
+- clamp where min > max.
+- Importing a name that doesn't exist should fail clearly (try it and note the error).
+
+SKILLS TESTED
+ES modules, named vs default exports, re-exports, package.json "type",
+input validation.
+
+ACCEPTANCE CRITERIA
+- `node main.js` runs without errors from inside L01/P04.
+- All examples produce the shown results.
+- Removing "type": "module" breaks it (verify, and write a one-line comment on why).
+- At least 6 assertions or tests across the modules.
+
+OPTIONAL BONUS
+Also provide a CommonJS entry (index.cjs) that loads the library, using dynamic
+import().
